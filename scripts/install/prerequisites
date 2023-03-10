@@ -1,0 +1,9 @@
+#!/bin/sh -e
+which apt-get > /dev/null && {
+    echo "Installing prerequisites for Debian/Ubuntu Linux..."
+    sudo apt-get update
+    sudo apt-get install -y gcc libffi-dev libssl-dev libyaml-dev openssl python3-dev
+} || {
+    echo "Installing prerequisites for Darwin (macOS)..."
+    brew install libffi libyaml
+}

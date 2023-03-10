@@ -1,21 +1,34 @@
 SOPS: Secrets OPerationS
 ========================
 
-.. image:: http://unmaintained.tech/badge.svg
-   :target: http://unmaintained.tech/
-   :alt: No Maintenance Intended
+|checks-status| |tests-status| |build-status| |pypi-version| |license|
 
-This is the Python version of SOPS that is no longer maintained. We fix the occasional bug, but all improvements happen in the Go version of SOPS, over in the Master branch. You have been warned!
+This is a fork of the `Python version`_ of `Mozilla's SOPS tool`_. Mozilla has
+switched to developing SOPS in Go in 2016, starting with version 2 of the tool.
+The `last release on PyPI`_ of the Python version is 1.18 of Nov 28, 2018.
 
-**sop** is an editor of encrypted files that supports YAML, JSON and BINARY formats and encrypts with AWS KMS and PGP (via GnuPG). Watch `the demo <https://www.youtube.com/watch?v=YTEVyLXFiq0>`_.
+At Swisscom, we use SOPS for obscuring (temporary) configuration data of hardware
+authentication tokens on Git in an internal project where no customers are affected.
 
-.. image:: http://i.imgur.com/IL6dlhm.gif
+.. _`Python version`: https://github.com/mozilla/sops/tree/python-sops
+.. _`Mozilla's SOPS tool`: https://github.com/mozilla/sops/
+.. _`last release on PyPI`: https://pypi.org/project/sops/#history
 
-.. image:: https://travis-ci.org/mozilla/sops.svg?branch=master
-	:target: https://travis-ci.org/mozilla/sops
-
-**Questions?** ping "ulfr" in `#security` on `irc.mozilla.org <https://wiki.mozilla.org/IRC>`_
-(use a web client like `mibbit <https://chat.mibbit.com>`_ ).
+.. |checks-status| image:: https://github.com/swisscom/sops/actions/workflows/check.yml/badge.svg
+   :target: https://github.com/swisscom/sops/actions/workflows/check.yml
+   :alt: GitHub Workflow Status
+.. |tests-status| image:: https://github.com/swisscom/sops/actions/workflows/test.yml/badge.svg
+   :target: https://github.com/swisscom/sops/actions/workflows/test.yml
+   :alt: GitHub Workflow Status
+.. |build-status| image:: https://github.com/swisscom/sops/actions/workflows/build.yml/badge.svg
+   :target: https://github.com/swisscom/sops/actions/workflows/build.yml
+   :alt: GitHub Workflow Status
+.. |pypi-version| image:: https://img.shields.io/pypi/v/sops.svg
+   :target: https://pypi.org/project/sops
+   :alt: Latest version on PyPI
+.. |license| image:: https://img.shields.io/pypi/l/sops.svg
+   :target: https://www.mozilla.org/en-US/MPL/2.0/
+   :alt: Software license
 
 .. sectnum::
 .. contents:: Table of Contents
@@ -394,8 +407,8 @@ passed on the sops command line or in environment variables.
 Specify a different GPG executable
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-`sops` checks for the `SOPS_GPG_EXEC` environment variable. If specified, 
-it will attempt to use the executable set there instead of the default 
+`sops` checks for the `SOPS_GPG_EXEC` environment variable. If specified,
+it will attempt to use the executable set there instead of the default
 of `gpg`.
 
 Example: place the following in your `~/.bashrc`
@@ -403,7 +416,7 @@ Example: place the following in your `~/.bashrc`
 .. code:: bash
 
 	SOPS_GPG_EXEC = 'your_gpg_client_wrapper'
-	
+
 Important information on types
 ------------------------------
 

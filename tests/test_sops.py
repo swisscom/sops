@@ -10,9 +10,9 @@
 
 import logging
 import unittest2
-import mock
 import os
 import sys
+from unittest import mock
 
 import sops
 
@@ -116,7 +116,7 @@ class TreeTest(unittest2.TestCase):
         # - test list
         # - test ScalarString
         # - test string decryption
-    
+
 
     def test_walk_list_and_decrypt(self):
         """Walk list and decrypt its values."""
@@ -132,7 +132,7 @@ class TreeTest(unittest2.TestCase):
         # - test list values encryption
         # - test ScalarString
         # - test string encryption
-        # TODO: 
+        # TODO:
         # - test stash value
         m = mock.mock_open(read_data=sops.DEFAULT_YAML)
         key = os.urandom(32)
@@ -265,7 +265,7 @@ class TreeTest(unittest2.TestCase):
         assert tree['sops']['kms'][0]['arn'] == 'arn:aws:kms:us-east-1:656532927350:key/920aff2e-c5f1-4040-943a-047fa387b27e'
         assert tree['sops']['kms'][1]['arn'] == 'arn:aws:kms:us-east-1:656532927350:key/920abb2e-c2b3-9090-943a-047fa387f3ac'
         assert tree['sops']['kms'][1]['role'] == 'arn:aws:iam::927034868273:role/sops-dev-xyz'
-                            
+
     def test_add_pgp_master_keys_where_none_existed(self):
         """ test adding a pgp master key to an existing tree
             that does not have any pgp master key yet
@@ -275,7 +275,7 @@ class TreeTest(unittest2.TestCase):
         tree = sops.add_new_master_keys(tree, '', newpgp)
         assert tree['sops']['kms'][0]['arn'] == 'arn:aws:kms:us-east-1:656532927350:key/920aff2e-c5f1-4040-943a-047fa387b27e'
         assert tree['sops']['pgp'][0]['fp'] == 'E60892BB9BD89A69F759A1A0A3D652173B763E8F'
-                            
+
     def test_add_pgp_master_keys(self):
         """ test adding a pgp master key to an existing tree """
         tree = {'sops': { 'pgp': [ {'fp': '1022470DE3F0BC54BC6AB62DE05550BC07FB1A0A' } ] } }
@@ -284,7 +284,7 @@ class TreeTest(unittest2.TestCase):
         tree = sops.add_new_master_keys(tree, '', newpgp)
         assert tree['sops']['pgp'][0]['fp'] == '1022470DE3F0BC54BC6AB62DE05550BC07FB1A0A'
         assert tree['sops']['pgp'][1]['fp'] == 'E60892BB9BD89A69F759A1A0A3D652173B763E8F'
-                            
+
     def test_add_kms_master_keys_where_none_existed(self):
         """ test adding a kms master key to an existing tree
             that does not have any kms master key yet
@@ -307,7 +307,7 @@ class TreeTest(unittest2.TestCase):
         tree = sops.remove_master_keys(tree, rmkms, '')
         assert tree['sops']['kms'][0]['arn'] == 'arn:aws:kms:us-east-1:656532927350:key/920aff2e-c5f1-4040-943a-047fa387b27e'
         assert len(tree['sops']['kms']) == 1
-                            
+
     def test_rm_pgp_master_keys_where_none_existed(self):
         """ test removing a pgp master key to an existing tree
             that does not have any pgp master key yet
@@ -318,7 +318,7 @@ class TreeTest(unittest2.TestCase):
         assert tree['sops']['kms'][0]['arn'] == 'arn:aws:kms:us-east-1:656532927350:key/920aff2e-c5f1-4040-943a-047fa387b27e'
         assert len(tree['sops']['kms']) == 1
         assert 'pgp' not in tree['sops']
- 
+
     def test_rm_pgp_master_keys(self):
         """ test removing a pgp master key to an existing tree """
         tree = {'sops': { 'pgp': [
@@ -330,7 +330,7 @@ class TreeTest(unittest2.TestCase):
         tree = sops.remove_master_keys(tree, '', rmpgp)
         assert len(tree['sops']['pgp']) == 1
         assert tree['sops']['pgp'][0]['fp'] == '1022470DE3F0BC54BC6AB62DE05550BC07FB1A0A'
-                            
+
     def test_rm_kms_master_keys_where_none_existed(self):
         """ test removing a kms master key to an existing tree
             that does not have any kms master key yet
@@ -341,7 +341,7 @@ class TreeTest(unittest2.TestCase):
         assert tree['sops']['pgp'][0]['fp'] == '1022470DE3F0BC54BC6AB62DE05550BC07FB1A0A'
         assert len(tree['sops']['pgp']) == 1
         assert 'kms' not in tree['sops']
-                            
+
     # Test keys management
     def test_get_key(self):
         """Test we obtain a 256 bits symetric key."""

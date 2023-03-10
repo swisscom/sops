@@ -10,8 +10,8 @@ INSTALL_STAMP = $(VENV)/.install.stamp
 
 all: build
 
-build:
-	python setup.py build
+build: dev-requirements
+	$(VENV)/bin/tox -e package
 
 install: $(INSTALL_STAMP)
 
@@ -21,10 +21,7 @@ $(INSTALL_STAMP): $(PYTHON) setup.py
 	touch $(INSTALL_STAMP)
 
 dev-requirements: $(INSTALL_STAMP) $(DEV_STAMP)
-$(DEV_STAMP): $(PYTHON) dev-requirements.txt
 	$(VENV)/bin/pip install tox
-	$(VENV)/bin/pip install -Ur dev-requirements.txt
-	touch $(DEV_STAMP)
 
 virtualenv: $(PYTHON)
 $(PYTHON):
@@ -34,7 +31,7 @@ tests: dev-requirements
 	$(VENV)/bin/tox
 
 tests-once: install dev-requirements
-	$(VENV)/bin/py.test --cov-report term-missing --cov sops tests/
+	$(VENV)/bin/tox -e py
 
 functional-tests:
 	gpg --import tests/sops_functional_tests_key.asc 2>&1 1>/dev/null || exit 0
@@ -87,11 +84,10 @@ functional-tests-once:
 	[ $$(python sops/__init__.py -d --extract '["firstName"]' example.json) = $$(python sops/__init__.py -d example.json | grep firstName | cut -d '"' -f 4) ]
 
 pypi:
-	$(PYTHON) setup.py sdist check upload --sign
+	$(PYTHON) -m build
+	$(PYTHON) -m twine check --strict dist/*
+	$(PYTHON) -m twine upload --sign dist/*
 
-clean:
-	rm -rf *.pyc sops/*.pyc
-	rm -rf __pycache__ sops/__pycache__
-	rm -rf build/ dist/
-	rm -fr .tox/ .venv/
-	rm -fr .coverage
+clean: dev-requirements
+	$(VENV)/bin/tox -e clean
+	rm -fr .tox/
