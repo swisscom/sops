@@ -2,7 +2,8 @@
 Packaging for sops CLI application.
 """
 from pathlib import Path
-from setuptools import setup, find_packages
+
+from setuptools import find_packages, setup
 
 
 def read_file(filename):
@@ -26,11 +27,11 @@ setup(
     long_description_content_type="text/x-rst",
     python_requires=">=3.7",
     install_requires=[
-        'boto3>=1.1.3',
-        'cryptography>=1.4',
-        'ordereddict>=1.1',
-        'ruamel.yaml>=0.11.7',
-        'simplejson>=3.8',
+        "boto3>=1.1.3",
+        "cryptography>=1.4",
+        "ordereddict>=1.1",
+        "ruamel.yaml>=0.11.7",
+        "simplejson>=3.8",
     ],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
@@ -42,9 +43,5 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
     ],
-    entry_points={
-        'console_scripts': [
-            'sops = sops:main'
-        ]
-    }
+    entry_points={"console_scripts": ["sops = sops:main"]},
 )

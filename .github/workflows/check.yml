@@ -19,8 +19,8 @@ jobs:
       matrix:
         env:
         - flake8
-        #- isort
-        #- black
+        - isort
+        - black
         #- bandit
         #- pylint
         - requirements
