@@ -7,8 +7,9 @@ This is a fork of the `Python version`_ of `Mozilla's SOPS tool`_. Mozilla has
 switched to developing SOPS in Go in 2016, starting with version 2 of the tool.
 The `last release on PyPI`_ of the Python version is 1.18 of Nov 28, 2018.
 
-At Swisscom, we use SOPS for obscuring (temporary) configuration data of hardware
-authentication tokens on Git in an internal project where no customers are affected.
+At Swisscom, we use SOPS integrated in a Python CLI application for obscuring
+(temporary) configuration data of hardware authentication tokens on Git in an
+internal project, which does not affect customers directly.
 
 .. _`Python version`: https://github.com/mozilla/sops/tree/python-sops
 .. _`Mozilla's SOPS tool`: https://github.com/mozilla/sops/
