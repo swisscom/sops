@@ -29,9 +29,7 @@ setup(
     install_requires=[
         "boto3>=1.1.3",
         "cryptography>=1.4",
-        "ordereddict>=1.1",
         "ruamel.yaml>=0.11.7",
-        "simplejson>=3.8",
     ],
     classifiers=[
         "Development Status :: 5 - Production/Stable",

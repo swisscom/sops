@@ -13,6 +13,7 @@ from __future__ import print_function, unicode_literals
 
 import argparse
 import hashlib
+import json
 import os
 import platform
 import re
@@ -20,6 +21,7 @@ import subprocess
 import sys
 import tempfile
 from base64 import b64decode, b64encode
+from collections import OrderedDict
 from datetime import datetime, timedelta
 from socket import gethostname
 from textwrap import dedent
@@ -29,23 +31,10 @@ import ruamel.yaml
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
-if sys.version_info[0] == 2 and sys.version_info[1] == 6:
-    # python2.6 needs simplejson and ordereddict
-    import simplejson as json
-    from ordereddict import OrderedDict
-else:
-    import json
-    from collections import OrderedDict
-
 try:
     from collections.abc import MutableMapping, MutableSequence
 except ImportError:
     from collections import MutableMapping, MutableSequence
-
-if sys.version_info[0] == 3:
-    raw_input = input
-
-PY2 = sys.version_info[0] == 2
 
 VERSION = "1.18"
 
@@ -405,7 +394,7 @@ def main():
                         "saving." % e,
                         file=sys.stderr,
                     )
-                    raw_input()
+                    input()
                 except KeyboardInterrupt:
                     os.remove(tmppath)
                     panic("ctrl+c captured, exiting without saving", 85)
@@ -427,7 +416,7 @@ def main():
                         "master key to the `sops` branch,\nor ctrl+c to "
                         "exit without saving."
                     )
-                    raw_input()
+                    input()
                 except KeyboardInterrupt:
                     os.remove(tmppath)
                     panic("ctrl+c captured, exiting without saving", 85)
@@ -1217,7 +1206,7 @@ def encrypt(value, key, aad=b"", stash=None, digest=None, unencrypted=False):
     # save the original type
     # the order in which we do this matters. For example, a bool
     # is also an int, but an int isn't a bool, so we test for bool first
-    if isinstance(value, str) or (PY2 and isinstance(value, unicode)):  # noqa
+    if isinstance(value, str):
         valtype = "str"
     elif isinstance(value, bool):
         valtype = "bool"
@@ -1530,10 +1519,7 @@ def write_file(tree, path=None, filetype=None):
 
     if not isinstance(tree, MutableMapping) and not isinstance(tree, MutableSequence):
         if path == "stdout":
-            if PY2:
-                sys.stdout.write(tree.encode("utf-8"))
-            else:
-                sys.stdout.buffer.write(tree.encode("utf-8"))
+            sys.stdout.buffer.write(tree.encode("utf-8"))
         else:
             # Write the entire tree to file descriptor
             fd.write(tree.encode("utf-8"))

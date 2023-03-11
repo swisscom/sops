@@ -8,24 +8,20 @@
 # Contributor: Alexis Metaireau <alexis@mozilla.com> [:alexis]
 # Contributor: Rémy Hubscher <natim@mozilla.com> [:natim]
 
+import builtins
+import collections
 import logging
 import os
 import sys
+from collections import OrderedDict
 from unittest import mock
+
+# workaround for Python 3.10+
+setattr(collections, "MutableMapping", collections.abc.MutableMapping)
 
 import unittest2
 
 import sops
-
-try:
-    from collections import OrderedDict
-except ImportError:
-    from ordereddict import OrderedDict
-
-if sys.version_info[0] == 2:
-    import __builtin__ as builtins
-else:
-    import builtins
 
 
 class TreeTest(unittest2.TestCase):
@@ -481,7 +477,7 @@ class TreeTest(unittest2.TestCase):
     def test_valid_json_syntax(self):
         m = mock.mock_open(read_data=sops.DEFAULT_JSON)
         with mock.patch.object(builtins, "open", m):
-            assert sops.validate_syntax("path", "json") == True
+            assert sops.validate_syntax("path", "json") is True
 
     def test_invalid_json_syntax(self):
         m = mock.mock_open(read_data="{,,,,,}")
@@ -492,17 +488,16 @@ class TreeTest(unittest2.TestCase):
     def test_valid_yaml_syntax(self):
         m = mock.mock_open(read_data=sops.DEFAULT_YAML)
         with mock.patch.object(builtins, "open", m):
-            assert sops.validate_syntax("path", "yaml") == True
+            assert sops.validate_syntax("path", "yaml") is True
 
     def test_bytes_syntax(self):
         m = mock.mock_open(read_data=sops.DEFAULT_TEXT)
         with mock.patch.object(builtins, "open", m):
-            assert sops.validate_syntax("path", "bytes") == True
+            assert sops.validate_syntax("path", "bytes") is True
 
     def test_subtree(self):
         """Extract a subtree from a document."""
         m = mock.mock_open(read_data=sops.DEFAULT_YAML)
-        key = os.urandom(32)
         tree = OrderedDict()
         with mock.patch.object(builtins, "open", m):
             tree = sops.load_file_into_tree("path", "yaml")
@@ -512,9 +507,9 @@ class TreeTest(unittest2.TestCase):
         assert ntree == tree["example_array"][1]
 
     def test_version_comparison(self):
-        assert sops.A_is_newer_than_B("1.9", "1.8") == True
-        assert sops.A_is_newer_than_B("2.1", "1.8") == True
-        assert sops.A_is_newer_than_B("1.7", "1.8") == False
-        assert sops.A_is_newer_than_B("1.8.2", "1.8") == True
-        assert sops.A_is_newer_than_B("1.7.9", "1.8") == False
-        assert sops.A_is_newer_than_B("1.7", "1.8.1") == False
+        assert sops.A_is_newer_than_B("1.9", "1.8") is True
+        assert sops.A_is_newer_than_B("2.1", "1.8") is True
+        assert sops.A_is_newer_than_B("1.7", "1.8") is False
+        assert sops.A_is_newer_than_B("1.8.2", "1.8") is True
+        assert sops.A_is_newer_than_B("1.7.9", "1.8") is False
+        assert sops.A_is_newer_than_B("1.7", "1.8.1") is False
