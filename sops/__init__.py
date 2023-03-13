@@ -22,19 +22,14 @@ import sys
 import tempfile
 from base64 import b64decode, b64encode
 from collections import OrderedDict
+from collections.abc import MutableMapping, MutableSequence
 from datetime import datetime, timedelta
 from socket import gethostname
 from textwrap import dedent
 
-import boto3
 import ruamel.yaml
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-
-try:
-    from collections.abc import MutableMapping, MutableSequence
-except ImportError:
-    from collections import MutableMapping, MutableSequence
 
 VERSION = "1.18"
 
@@ -1374,6 +1369,14 @@ def encrypt_key_with_kms(key, entry):
 
 def get_aws_session_for_entry(entry):
     """Return a boto3 session using a role if one exists in the entry"""
+    try:
+        import boto3
+    except ImportError:
+        panic(
+            "AWS KMS is not available: boto3 not installed. "
+            "Install SOPS with aws extras (e.g. `pip install sops[aws]`)."
+        )
+
     # extract the region from the ARN
     # arn:aws:kms:{REGION}:...
     res = re.match("^arn:aws:kms:(.+):([0-9]+):key/(.+)$", entry["arn"])

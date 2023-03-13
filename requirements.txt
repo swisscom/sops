@@ -4,31 +4,13 @@
 #
 #    pip-compile --resolver=backtracking
 #
-boto3==1.26.89
-    # via sops (setup.py)
-botocore==1.29.89
-    # via
-    #   boto3
-    #   s3transfer
 cffi==1.15.1
     # via cryptography
 cryptography==39.0.2
     # via sops (setup.py)
-jmespath==1.0.1
-    # via
-    #   boto3
-    #   botocore
 pycparser==2.21
     # via cffi
-python-dateutil==2.8.2
-    # via botocore
 ruamel-yaml==0.17.21
     # via sops (setup.py)
 ruamel-yaml-clib==0.2.7
     # via ruamel-yaml
-s3transfer==0.6.0
-    # via boto3
-six==1.16.0
-    # via python-dateutil
-urllib3==1.26.15
-    # via botocore

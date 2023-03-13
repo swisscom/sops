@@ -27,10 +27,14 @@ setup(
     long_description_content_type="text/x-rst",
     python_requires=">=3.7",
     install_requires=[
-        "boto3>=1.1.3",
         "cryptography>=1.4",
         "ruamel.yaml>=0.11.7",
     ],
+    extras_require={
+        "aws": [
+            "boto3>=1.1.3",
+        ],
+    },
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Topic :: Software Development :: Libraries :: Python Modules",

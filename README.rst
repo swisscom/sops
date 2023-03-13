@@ -58,6 +58,21 @@ Installation
 
 1. http://docs.python-guide.org/en/latest/starting/install/osx/#doing-it-right
 
+.. note::
+
+	We made AWS KMS support optional, i.e. you need to use the "aws" extras
+	when installing the SOPS package, e.g.
+
+	.. code:: console
+
+		pip install 'sops[aws]'
+
+	or, for local installations from source:
+
+	.. code:: console
+
+		pip install '.[aws]'
+
 In a virtualenv
 ~~~~~~~~~~~~~~~
 
