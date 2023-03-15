@@ -307,7 +307,7 @@ def main():
         if otype == "bytes":
             otype = "json"
         write_file(tree, path=dest, filetype=otype)
-        sys.exit(0)
+        return
 
     if args.decrypt:
         # Decrypt mode: decrypt, display and exit
@@ -322,7 +322,7 @@ def main():
         if args.tree_path:
             tree = truncate_tree(tree, args.tree_path)
         write_file(tree, path=dest, filetype=otype)
-        sys.exit(0)
+        return
 
     if args.rotate:
         # Rotate mode: generate new data keys and reencrypt the file
@@ -337,7 +337,7 @@ def main():
             otype = "json"
         path = write_file(tree, path=args.file, filetype=otype)
         print("INFO: data key rotated and file written to %s" % (path), file=sys.stderr)
-        sys.exit(0)
+        return
 
     # EDIT Mode: decrypt, edit, encrypt and save
     key, tree = get_key(tree, need_key)
@@ -436,7 +436,6 @@ def main():
         otype = "json"
     path = write_file(tree, path=args.file, filetype=otype)
     print("INFO: file written to %s" % (path), file=sys.stderr)
-    sys.exit(0)
 
 
 def set_gpg_exec(exec_name=None):
@@ -1590,7 +1589,6 @@ def run_editor(path):
         subprocess.call(editorcmd)
     else:
         panic("Please define your EDITOR environment variable.", 201)
-    return
 
 
 def validate_syntax(path, filetype):
@@ -1633,11 +1631,6 @@ def to_bytes(value):
         # if not bytes, convert to bytes
         return str(value).encode("utf-8")
     return value
-
-
-def panic(msg, error_code=1):
-    print("PANIC: %s" % msg, file=sys.stderr)
-    sys.exit(error_code)
 
 
 def check_rotation_needed(tree):
@@ -1762,5 +1755,23 @@ def check_latest_version():
         pass
 
 
+def panic(msg, error_code=1):
+    """Handle an error situation by printing an error message and
+    aborting execution. Will raise a ``SopsModuleError`` when SOPS is
+    used as a Python module, and ``SystemExit`` when SOPS is run as a
+    script.
+    """
+    print("PANIC: %s" % msg, file=sys.stderr)
+    raise panic.strategy(error_code)
+
+
+class SopsModuleError(RuntimeError):
+    pass
+
+
+panic.strategy = SopsModuleError
+
+
 if __name__ == "__main__":
+    panic.strategy = SystemExit
     main()
