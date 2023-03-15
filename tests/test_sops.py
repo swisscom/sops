@@ -463,16 +463,20 @@ class TreeTest(unittest2.TestCase):
     # Panic errors
     def test_panic_writes_to_stderr(self):
         with mock.patch.object(builtins, "print") as print_mock:
-            with mock.patch("sys.exit") as sys_exit_mock:
+            with self.assertRaises(sops.SopsModuleError):
                 sops.panic("Foobar")
-                print_mock.assert_called_with("PANIC: Foobar", file=sys.stderr)
-                sys_exit_mock.assert_called_with(1)
+            print_mock.assert_called_with("PANIC: Foobar", file=sys.stderr)
 
     def test_panic_handles_exit_error_code(self):
+        original_strategy = sops.panic.strategy
+        sops.panic.strategy = SystemExit
+
         with mock.patch.object(builtins, "print"):
-            with mock.patch("sys.exit") as sys_exit_mock:
+            with self.assertRaises(SystemExit) as assert_result:
                 sops.panic("Foobar", 111)
-                sys_exit_mock.assert_called_with(111)
+            self.assertEquals(assert_result.exception.code, 111)
+
+        sops.panic.strategy = original_strategy
 
     def test_valid_json_syntax(self):
         m = mock.mock_open(read_data=sops.DEFAULT_JSON)
