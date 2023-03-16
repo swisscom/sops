@@ -500,7 +500,8 @@ def initialize_tree(
     else:
         # The file does not exist, create a new tree using DEFAULT data
         if itype == "yaml":
-            tree = ruamel.yaml.load(DEFAULT_YAML, ruamel.yaml.RoundTripLoader)
+            yaml = ruamel.yaml.YAML()
+            tree = yaml.load(DEFAULT_YAML)
         elif itype == "json":
             tree = json.loads(DEFAULT_JSON, object_pairs_hook=OrderedDict)
         else:
@@ -528,7 +529,8 @@ def load_file_into_tree(path, filetype, restore_sops=None):
     tree = OrderedDict()
     with open(path, "rb") as fd:
         if filetype == "yaml":
-            tree = ruamel.yaml.load(fd, ruamel.yaml.RoundTripLoader)
+            yaml = ruamel.yaml.YAML()
+            tree = yaml.load(fd)
         elif filetype == "json":
             data = fd.read()
             if isinstance(data, bytes):
@@ -586,7 +588,8 @@ def find_config_for_file(filename, configloc):
     # contain a regex that matches the current filename
     try:
         with open(configloc, "rb") as filedesc:
-            config = ruamel.yaml.load(filedesc, ruamel.yaml.RoundTripLoader)
+            yaml = ruamel.yaml.YAML()
+            config = yaml.load(filedesc)
     except IOError:
         panic("no configuration file found at '%s'" % configloc, 61)
     if "creation_rules" not in config:
@@ -1597,7 +1600,8 @@ def validate_syntax(path, filetype):
         return True
     with open(path, "r") as fd:
         if filetype == "yaml":
-            ruamel.yaml.load(fd, ruamel.yaml.RoundTripLoader)
+            yaml = ruamel.yaml.YAML()
+            yaml.load(fd)
         if filetype == "json":
             json.load(fd)
     return True
