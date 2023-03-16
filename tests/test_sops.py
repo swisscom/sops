@@ -474,7 +474,7 @@ class TreeTest(unittest2.TestCase):
         with mock.patch.object(builtins, "print"):
             with self.assertRaises(SystemExit) as assert_result:
                 sops.panic("Foobar", 111)
-            self.assertEquals(assert_result.exception.code, 111)
+            self.assertEqual(assert_result.exception.code, 111)
 
         sops.panic.strategy = original_strategy
 
