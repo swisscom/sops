@@ -14,6 +14,8 @@ import logging
 import os
 import sys
 from collections import OrderedDict
+from subprocess import CompletedProcess
+from textwrap import dedent
 from unittest import mock
 
 # workaround for Python 3.10+
@@ -451,6 +453,76 @@ class TreeTest(unittest2.TestCase):
 
     def test_encrypt_key_with_pgp(self):
         """Test PGP encryption."""
+        proc_mock = mock.Mock()
+        proc_mock.returncode = 0
+        proc_mock.communicate = mock.Mock(return_value=[b"(encrypted)"])
+
+        key_to_encrypt = "..."
+        entry = {"fp": "2BFE69DF93B7E9F1D9E25DAF450C4B57814B4A39"}
+
+        with mock.patch("subprocess.Popen", return_value=proc_mock), mock.patch.object(
+            sops, "get_key_infos", return_value=("Alice", "2035-11-28")
+        ) as keyinfo_mock:
+            result = sops.encrypt_key_with_pgp(key_to_encrypt, entry)
+
+        self.assertEqual(result["fp"], entry["fp"])
+        self.assertEqual(result["enc"], "(encrypted)")
+        self.assertEqual(result["created_at"], sops.NOW)
+        keyinfo_mock.assert_called_with(entry["fp"])
+        self.assertEqual(result["expires"], "2035-11-28")
+        self.assertEqual(result["owner"], "Alice")
+
+    def test_key_infos_noexpiry(self):
+        """Is a key without an expiry date parsed correctly?"""
+        without_expiry = bytes(
+            dedent(
+                """
+                pub   rsa4096 2022-07-30 [SC]
+                      3BC74316F6CA0A0D4B4FD6F23E2DAB6739BE5A83
+                uid           [ unknown] John Doe <john.doe@example.com>
+                sub   rsa4096 2022-07-30 [E]
+                """
+            ).strip(),
+            encoding="utf-8",
+        )
+        completed = CompletedProcess(args=..., returncode=0, stdout=without_expiry)
+
+        with mock.patch("subprocess.run", return_value=completed):
+            owner, expired = sops.get_key_infos(...)
+
+        self.assertEqual(owner, "John Doe <john.doe@example.com>")
+        self.assertEqual(expired, "")
+
+    def test_key_infos_expires(self):
+        """Is a key with an expiry date parsed correctly?"""
+        with_expiry = bytes(
+            dedent(
+                """
+                pub   rsa4096 2018-01-29 [SC] [expires: 2034-12-31]
+                      1AFE69DFB3B7E9F1A9E253AF450C4957814B4486
+                uid           [ unknown] Jane Doe <jane.doe@example.com>
+                sub   rsa4096 2018-01-29 [E] [expires: 2034-12-31]
+                """
+            ).strip(),
+            encoding="utf-8",
+        )
+        completed = CompletedProcess(args=..., returncode=0, stdout=with_expiry)
+
+        with mock.patch("subprocess.run", return_value=completed):
+            owner, expires = sops.get_key_infos(...)
+
+        self.assertEqual(owner, "Jane Doe <jane.doe@example.com>")
+        self.assertEqual(expires, "2034-12-31")
+
+    def test_key_infos_error(self):
+        """Do we handle process execution failures gracefully?"""
+        with mock.patch("subprocess.run", side_effect=Exception):
+            with mock.patch("builtins.print") as print_mock:
+                owner, expires = sops.get_key_infos("...")
+
+        print_mock.assert_called_with("ERROR: failed to get details of pgp fp ...: ")
+        self.assertEqual(owner, "")
+        self.assertEqual(expires, "")
 
     # Write file
     def test_write_file(self):

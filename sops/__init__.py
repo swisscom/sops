@@ -1499,7 +1499,38 @@ def encrypt_key_with_pgp(key, entry):
     enc = enc.decode("utf-8")
     entry["enc"] = ruamel.yaml.scalarstring.PreservedScalarString(enc)
     entry["created_at"] = NOW
+    owner, expires = get_key_infos(fp)
+    entry["expires"] = expires
+    entry["owner"] = owner
     return entry
+
+
+def get_key_infos(fp):
+    """Extract public information from a key via its fingerprint.
+
+    GPG's line output is converted to key/value pairs, brute-force
+    reducing multiple entries for a key (e.g. several 'uid' identities)
+    for simplicity, which is fine since all values are equally valid.
+    """
+    try:
+        result = subprocess.run([GPG_EXEC, "--list-key", fp], capture_output=True)
+    except Exception as exc:
+        print(f"ERROR: failed to get details of pgp fp {fp}: {exc}")
+        return "", ""
+
+    text = result.stdout.decode("utf-8")
+    lines = text.replace("\n ", " ").split("\n")
+    flat = {
+        k: v.strip()
+        for k, v in (line.split(" ", maxsplit=1) for line in lines if " " in line)
+    }
+    owner = flat["uid"].split("] ", maxsplit=1)[-1]
+    expires = (
+        flat["pub"].split("[expires: ")[1].split("] ")[0]
+        if "[expires: " in flat["pub"]
+        else ""
+    )
+    return owner, expires
 
 
 def write_file(tree, path=None, filetype=None):
