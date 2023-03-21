@@ -108,6 +108,8 @@ UNENCRYPTED_SUFFIX = DEFAULT_UNENCRYPTED_SUFFIX
 
 GPG_EXEC = None
 
+GPG_SILENT = True
+
 
 def main():
     argparser = argparse.ArgumentParser(
@@ -188,6 +190,12 @@ def main():
         "during editing (off by default).",
     )
     argparser.add_argument(
+        "--silent",
+        action="store_true",
+        dest="silent",
+        help="suppress GPG progress on stderr (off by default).",
+    )
+    argparser.add_argument(
         "--add-kms",
         dest="add_kms",
         help="Add the given comma separated KMS ARNs to the"
@@ -241,6 +249,9 @@ def main():
         "-V", "-v", "--version", action=ShowVersion, version="%(prog)s " + str(VERSION)
     )
     args = argparser.parse_args()
+
+    global GPG_SILENT
+    GPG_SILENT = args.silent
 
     kms_arns = ""
     if "SOPS_KMS_ARN" in os.environ:
@@ -1448,6 +1459,7 @@ def get_key_from_pgp(tree):
                 [GPG_EXEC, "--use-agent", "-d"],
                 stdout=subprocess.PIPE,
                 stdin=subprocess.PIPE,
+                stderr=subprocess.DEVNULL if GPG_SILENT else None,
             )
             key = p.communicate(input=enc.encode("utf-8"))[0]
         except Exception as e:
@@ -1486,6 +1498,7 @@ def encrypt_key_with_pgp(key, entry):
             ],
             stdout=subprocess.PIPE,
             stdin=subprocess.PIPE,
+            stderr=subprocess.DEVNULL if GPG_SILENT else None,
         )
         enc = p.communicate(input=key)[0]
     except Exception as e:
